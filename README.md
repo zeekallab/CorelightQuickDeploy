@@ -4,8 +4,29 @@ A **local, one-button web app** for Corelight SEs to deploy a Fleet Manager + N 
 Sensors into the cloud — **Azure or AWS**. Runs entirely on your machine (bound to `127.0.0.1`),
 signs in to your cloud from the browser (Azure device code / AWS IAM Identity Center — no CLI),
 and streams live progress. Ships either as source you run with Node, or as a
-**double-clickable desktop app** (`.dmg` / `.exe` / `.AppImage`) that bundles
+**double-clickable desktop app** (macOS `.dmg` / Windows `.exe`) that bundles
 Node + Terraform and needs nothing preinstalled.
+
+## Download & install
+
+**Most users want this — no Node, Terraform or cloud CLI needed.** Grab the latest installer from the
+[**Releases page**](../../releases/latest):
+
+- **macOS (Apple Silicon)** — download the `.dmg`, open it, and drag **Corelight Quick Deploy** to
+  Applications. The build is unsigned, so macOS blocks the first launch (sometimes calling it
+  "damaged"). Fix it once in Terminal:
+  ```bash
+  xattr -dr com.apple.quarantine "/Applications/Corelight Quick Deploy.app"
+  ```
+  then open it normally.
+- **Windows** — download the `Setup .exe` and run it. SmartScreen may warn on an unsigned build:
+  **More info → Run anyway**.
+
+Then launch the app, pick **Azure** or **AWS**, sign in from the browser prompt, fill in the form,
+and press **Deploy**. Check the version badge in the app header against the Releases page to be
+sure you're on the latest build.
+
+> Want to run from source or build the installer yourself? See [Run from source](#run-from-source-developers) below.
 
 > **Status: feature-complete on both clouds, live-proven end-to-end.** One button provisions the
 > infra (new VNet/VPC, subnets, NSG/security groups, optional Fleet VM + N sensor VMs), brings up
@@ -20,7 +41,10 @@ Node + Terraform and needs nothing preinstalled.
 > (monitoring = `eth0` primary ENI, management = `eth1` secondary ENI + Elastic IP), with a
 > dual-ENI policy-routing fix applied via `user_data`.*
 
-## Prerequisites (any OS — Windows, macOS, Linux)
+## Run from source (developers)
+Only needed if you're developing the app or building the installer yourself.
+
+**Prerequisites (any OS: Windows, macOS, Linux)**
 - **Node.js** LTS (18+) — *only needed to run from source. The packaged desktop app (`.dmg` /
   `.exe` / `.AppImage`) bundles its own Node runtime and needs nothing preinstalled.*
 
@@ -72,13 +96,14 @@ from macOS. Builds are unsigned by default; add a signing identity for distribut
   On success a results card shows the Fleet UI URL, the sensor list, and ready-to-copy SSH commands.
 
 ## Tearing down
-The in-app **STOP** button halts a running deploy and destroys whatever it created; a failed run
-offers a rollback that does the same. To tear down a completed run manually, run
-`terraform destroy` inside the run's workspace at `runs/<id>/tf/`. On **Azure** each deployment also
-lands in its own resource group named `cqd-<runid>-rg`, so deleting that group (Azure Portal or
-`az group delete -n cqd-<runid>-rg`) removes everything. On **AWS** everything lives in the per-run
-VPC created by the module — `terraform destroy` in the run workspace removes the VPC, instances,
-ENIs, and Elastic IPs.
+After a successful deploy, the results card offers **Accept or tear down**: keep the deployment, or
+press **Tear down deployment… → Confirm** to run `terraform destroy` on exactly what that run
+created (your existing resource group and Fleet are left alone). The **STOP** button halts a running
+deploy and destroys whatever it created, and a failed run offers the same rollback.
+
+The teardown button only covers runs from the current app session. For an older run, run
+`terraform destroy` inside its workspace (`runs/<id>/tf/`), or delete the resources it created in
+the Azure Portal / AWS console (they're tagged `managed-by = corelight-quick-deploy`).
 
 ## Design (see also the plan in project memory)
 - **Frontend**: React + Vite. **Backend**: Node/Express, localhost-only, SSE for progress.
