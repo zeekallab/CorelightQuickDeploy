@@ -1,0 +1,148 @@
+:root {
+  /* Corelight motif: deep navy surfaces + signature bright green accent. */
+  --bg: #071019;
+  --card: #0e1c28;
+  --card-2: #142838;
+  --ink: #e8eef2;
+  --muted: #8aa0b0;
+  --accent: #00d17a;        /* Corelight green */
+  --accent-ink: #032015;    /* readable text on the green */
+  --accent-soft: #0c3a2c;   /* muted green fill for chips/tints */
+  --ok: #00d17a;
+  --bad: #ff6b6b;
+  --warn: #ffcf5c;
+  --border: #1d3444;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+code { background: #06121a; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+a { color: var(--accent); }
+
+/* Fill the whole window — widening the app takes advantage of the extra screen space. */
+.app { width: 100%; margin: 0; padding: 24px; }
+.topbar { margin-bottom: 18px; padding-left: 14px; position: relative; }
+/* Brand stripe — a Corelight-green accent bar beside the title. */
+.topbar::before { content: ""; position: absolute; left: 0; top: 2px; bottom: 2px; width: 4px;
+  border-radius: 3px; background: linear-gradient(180deg, var(--accent), #00a862); }
+.topbar h1 { margin: 0 0 2px; font-size: 22px; letter-spacing: -0.01em; }
+.topbar h1 .brand { color: var(--accent); }
+.badge { background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent);
+  padding: 1px 8px; border-radius: 20px; font-size: 12px; }
+
+.layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+/* Let each column shrink to its track instead of being forced wide by a long,
+   unbreakable log line (e.g. an SSH public key) — that's what widened the window. */
+.layout > * { min-width: 0; }
+.col { display: flex; flex-direction: column; gap: 18px; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.card h2 { margin: 0 0 12px; font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.card-head { display: flex; justify-content: space-between; align-items: center; }
+
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.bad-text { color: var(--bad); }
+.warn { color: var(--warn); }
+.ok { color: var(--ok); }
+
+/* precheck — three compact readiness chips (Auth · Access · Capacity) */
+.precheck { padding: 14px 16px; }
+.precheck-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.precheck-title { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 560px) { .chips { grid-template-columns: 1fr; } }
+.chip { background: var(--card-2); border: 1px solid var(--border); border-left-width: 3px;
+  border-radius: 8px; padding: 9px 11px; min-width: 0; }
+.chip-head { display: flex; align-items: center; gap: 7px; }
+.chip-ico { font-size: 9px; line-height: 1; flex: none; }
+.chip-title { font-size: 12px; font-weight: 700; letter-spacing: .01em; }
+.chip-line { font-size: 12px; color: var(--ink); margin-top: 3px; overflow-wrap: anywhere; }
+.chip-fix { font-size: 11px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+/* states: green ok, amber warn (grows the fix line), dim todo, pulsing checking */
+.chip.ok { border-left-color: var(--ok); } .chip.ok .chip-ico { color: var(--ok); }
+.chip.warn { border-left-color: var(--warn); } .chip.warn .chip-ico { color: var(--warn); }
+.chip.warn .chip-fix { color: var(--warn); }
+.chip.todo { opacity: .55; border-left-color: var(--border); } .chip.todo .chip-ico { color: var(--muted); }
+.chip.checking { border-left-color: var(--accent); } .chip.checking .chip-ico { color: var(--accent); animation: chip-pulse 1s ease-in-out infinite; }
+@keyframes chip-pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* form */
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.field-label { font-size: 13px; color: var(--muted); }
+.field-hint { font-size: 11px; color: var(--muted); }
+input, select, textarea { background: #06121a; border: 1px solid var(--border); color: var(--ink);
+  padding: 9px 10px; border-radius: 8px; font-size: 14px; width: 100%; font-family: inherit; outline: none; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0, 209, 122, 0.25); }
+textarea { resize: vertical; }
+input[type="file"] { padding: 6px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.check { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0 14px; }
+.check input { width: auto; margin-top: 2px; }
+.subpanel { background: var(--card-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+details.subpanel > summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; user-select: none; }
+details.subpanel[open] > summary { margin-bottom: 8px; }
+.aws-facade { border-style: dashed; opacity: 0.9; }
+
+/* Cloud provider selector */
+.cloud-tabs { display: flex; gap: 8px; }
+.cloud-tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: 1px solid var(--border); background: var(--card-2); color: var(--ink);
+  padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.cloud-tab.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.cloud-tab.disabled { opacity: 0.6; }
+.cloud-tab .pill { background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  padding: 1px 8px; font-size: 11px; color: var(--warn); }
+
+.btn { border: 1px solid var(--border); background: var(--card-2); color: var(--ink);
+  padding: 9px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); width: 100%; font-weight: 700; }
+.btn.primary:hover { background: #00e588; border-color: #00e588; }
+.btn.primary:disabled { opacity: .6; cursor: default; }
+.btn.ghost { padding: 5px 10px; font-size: 12px; }
+.btn.danger { background: var(--bad); border-color: var(--bad); color: #1a0707; font-weight: 700; }
+.btn.danger:hover { background: #ff8585; border-color: #ff8585; }
+.btn.danger:disabled { opacity: .6; cursor: default; }
+/* The Deploy button turns into this while a run is live: red, "STOP" large with a small
+   "working…" subline so the operator can pull the plug (halt + delete) at any point. */
+.btn.stop { background: var(--bad); border-color: var(--bad); color: #1a0707; width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1.12; }
+.btn.stop:hover { background: #ff8585; border-color: #ff8585; }
+.btn.stop:disabled { opacity: .75; cursor: default; }
+.btn.stop .stop-main { font-weight: 800; letter-spacing: .09em; font-size: 15px; }
+.btn.stop .stop-sub { font-size: 10.5px; font-weight: 500; opacity: .8; }
+
+/* Failure-recovery rollback prompt — reddish border so it reads as a warning, not an action. */
+.rollback-card { border-color: var(--bad); }
+.rollback-card h2 { color: var(--bad); text-transform: none; letter-spacing: 0; font-size: 16px; }
+.rollback-card.ok { border-color: var(--ok); }
+.rollback-card.ok h2 { color: var(--ok); }
+
+/* inline select + button (e.g. resource-group picker + Refresh) */
+.row-inline { display: flex; gap: 8px; align-items: center; }
+.row-inline select { flex: 1; min-width: 0; }
+
+/* log */
+.log-card { position: sticky; top: 18px; }
+.phase { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.phase.running::before { content: "● "; color: var(--accent); }
+.log { background: #06121a; border: 1px solid var(--border); border-radius: 8px; padding: 12px;
+  height: 60vh; min-height: 360px; overflow-y: auto; overflow-x: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; }
+.log-line { display: flex; gap: 10px; padding: 1px 0; }
+.log-line .ts { color: #55617e; flex: none; }
+/* Wrap long lines (SSH keys, terraform IDs) instead of scrolling/widening. */
+.log-line .txt { min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.log-line.info .txt { color: var(--ink); }
+.log-line.success .txt { color: var(--ok); }
+.log-line.error .txt { color: var(--bad); }
+.log-line.warn .txt { color: #d9a441; }
+
+/* results */
+.result-block { margin-top: 14px; }
+.result-block h3 { font-size: 13px; margin: 0 0 6px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.kv { list-style: none; margin: 0 0 10px; padding: 0; }
+.kv li { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+.kv li span { color: var(--muted); flex: none; }
+.kv li code, .kv li a { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; text-align: right; word-break: break-all; }

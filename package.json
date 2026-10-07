@@ -1,0 +1,65 @@
+{
+  "name": "corelightquickdeploy",
+  "version": "0.9.3",
+  "private": true,
+  "description": "Local one-button web app for Corelight SEs to deploy a Fleet Manager + N sensors into the cloud (Azure or AWS).",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "setup": "npm install && npm --prefix server install && npm --prefix web install && node scripts/fetch-terraform.js",
+    "vendor:terraform": "node scripts/fetch-terraform.js",
+    "dev": "concurrently -n server,web -c blue,green \"npm --prefix server run dev\" \"npm --prefix web run dev\"",
+    "start": "node scripts/start.js",
+    "build": "npm --prefix web run build",
+    "app:dev": "npm run build && node scripts/app.js",
+    "app:build": "npm run build && node scripts/fetch-terraform.js && electron-builder"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.1134.0",
+    "@aws-sdk/client-sso": "^3.1134.0",
+    "@aws-sdk/client-sso-oidc": "^3.1134.0",
+    "@aws-sdk/client-sts": "^3.1134.0",
+    "@azure/identity": "^4.13.3",
+    "adm-zip": "^0.5.18",
+    "express": "^4.21.2",
+    "ssh2": "^1.16.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
+    "open": "^10.1.0"
+  },
+  "build": {
+    "appId": "io.corelight.quickdeploy",
+    "productName": "Corelight Quick Deploy",
+    "afterPack": "scripts/afterPack.cjs",
+    "asar": false,
+    "files": [
+      "electron/**",
+      "server/**",
+      "web/dist/**",
+      "!**/*.map",
+      "!server/node_modules/**"
+    ],
+    "extraResources": [
+      {
+        "from": "vendor",
+        "to": "vendor"
+      },
+      {
+        "from": "terraform",
+        "to": "terraform"
+      }
+    ],
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

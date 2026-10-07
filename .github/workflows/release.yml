@@ -1,0 +1,62 @@
+name: Build desktop apps
+
+# Builds the packaged desktop app for Windows (.exe / NSIS) and macOS (.dmg) on
+# their own OS runners — a Windows installer can't be cross-built from macOS, and
+# the bundled Terraform binary is fetched per-OS. Trigger by pushing a v* tag (also
+# publishes a GitHub Release with the artifacts attached) or run it manually from the
+# Actions tab (artifacts are downloadable from the run).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: "dist/*.exe"
+          - os: macos-latest
+            artifact: "dist/*.dmg"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Root deps carry everything electron-builder bundles (Node resolves the server's
+      # bare imports from root node_modules); web deps are needed for the Vite build.
+      - name: Install dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npm --prefix web install --no-audit --no-fund
+
+      # build UI -> fetch the per-OS Terraform binary -> electron-builder (current OS target).
+      # --publish never: we attach artifacts via the release step below, so electron-builder
+      # must NOT try to publish itself (it otherwise demands a GH_TOKEN in CI and fails).
+      - name: Build app
+        run: npm run app:build -- --publish never
+        env:
+          # Unsigned builds: don't let electron-builder hunt for a signing identity.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: corelight-quick-deploy-${{ matrix.os }}
+          path: ${{ matrix.artifact }}
+          if-no-files-found: error
+
+      # On a tag push, also attach the installers to a GitHub Release.
+      - name: Publish to Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.artifact }}

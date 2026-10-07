@@ -1,0 +1,20 @@
+{
+  "name": "corelightquickdeploy-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.1134.0",
+    "@aws-sdk/client-sso": "^3.1134.0",
+    "@aws-sdk/client-sso-oidc": "^3.1134.0",
+    "@aws-sdk/client-sts": "^3.1134.0",
+    "@azure/identity": "^4.13.3",
+    "express": "^4.21.2",
+    "ssh2": "^1.16.0"
+  }
+}
